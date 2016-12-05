@@ -1,2 +1,2 @@
 # PeerEvalCaculator
-A GUI to automatically calculate peer evaluation score of students in Biol1121
+A GUI application to automatically calculate and output peer evaluation score of students in Biol1121
