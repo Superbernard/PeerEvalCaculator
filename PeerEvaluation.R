@@ -13,14 +13,14 @@
 #
 #.	The name input from students are not exactly accurate. Some are missing family name, some have
 #   misspelling and some provide nicky name etc. Text match methed need to be used to match those
-#   input names to true names on the class raster. Levenshtein distance is used to find the best match.
+#   input names to true names on the class roster. Levenshtein distance is used to find the best match.
 #
 #.	The peer score is calculated by averaging scores got from every team member who participates the
 #   evaluation.
 #
 
 
-package_needed <- c("dplyr","RecordLinkage")  # packages used in this script
+package_needed <- c("dplyr","RecordLinkage"，"gWidgets"，"gWidgetsRGtk2")  # packages used in this script
 pack_install_idx <- which(package_needed %in% rownames(installed.packages()) == F)
 # find the package or packages needed but not installed
 
@@ -31,10 +31,13 @@ if(length(pack_install_idx) > 0){
 
 library(dplyr)
 library(RecordLinkage)
+library(gWidgets)
+library(gWidgetsRGtk2)
+options ( guiToolkit="RGtk2" )
 
-raw_data <- read.csv(
-  "Peer Evaluation 3 - Inv D Survey Student Analysis Report.csv",
-  header = T, sep = ",", na.strings = c("","NA","N/A","na","Na"))  #import quize file
+# raw_data <- read.csv(
+#   "Peer Evaluation 3 - Inv D Survey Student Analysis Report.csv",
+#   header = T, sep = ",", na.strings = c("","NA","N/A","na","Na"))  #import quize file
 
 data_ognz <- function(rawdata){
   # function of data reorganization
@@ -113,18 +116,18 @@ data_ognz <- function(rawdata){
 }
 
 
-raster <- read.csv( "Raster.csv", header = T, sep = ",")
-#import raster data as a standard of names
-raster <- raster[-1,c(1,5)]  # select name and section and delete the first row of possible points
-raster <- raster[ raster$Student != "Test Student", ]  # delete test student
-
-# correct wrong info of students
-raster[raster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
-raster[raster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
-raster[raster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
-raster[raster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
-raster$Section <- factor(raster$Section)
-raster$Student <- as.character(raster$Student)
+# roster <- read.csv( "roster.csv", header = T, sep = ",")
+# #import roster data as a standard of names
+# roster <- roster[-1,c(1,5)]  # select name and section and delete the first row of possible points
+# roster <- roster[ roster$Student != "Test Student", ]  # delete test student
+# 
+# # correct wrong info of students
+# roster[roster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
+# roster[roster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
+# roster[roster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
+# roster[roster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
+# roster$Section <- factor(roster$Section)
+# roster$Student <- as.character(roster$Student)
 
 
 ClosestMatch = function(string, stringVector){  
@@ -141,23 +144,11 @@ ClosestMatch = function(string, stringVector){
 #sections_level <- levels(name_score_raw$team_section_raw)
 
 
-raster <- read.csv( "Raster.csv", header = T, sep = ",")
-#import raster data as a standard of names
-raster <- raster[-1,c(1,5)]  # select name and section and delete the first row of possible points
-raster <- raster[ raster$Student != "Test Student", ]  # delete test student
-raster[raster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
-raster[raster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
-raster[raster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
-raster[raster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
-raster$Section <- factor(raster$Section)
-raster$Student <- as.character(raster$Student)
-
-
-score_compute <- function(name_score_raw,raster,output_filename){
+score_compute <- function(name_score_raw,roster,output_filename){
   #browser()
   # function to calculate peer score
-  num_sections <- nlevels(raster$Section)   #total number of section categories
-  sections_level <- levels(raster$Section)   #all possible levels of section
+  num_sections <- nlevels(roster$Section)   #total number of section categories
+  sections_level <- levels(roster$Section)   #all possible levels of section
   
   data_by_section <- list()  #create empty list to hold different subsets
   name_standard_by_section <- list()  #create empty list to hold different name subset,
@@ -171,7 +162,7 @@ score_compute <- function(name_score_raw,raster,output_filename){
   for (i in 1:num_sections ){
     # loop through all sections
     data_by_section[[i]] <- name_score_raw[ name_score_raw$team_section_raw == sections_level[i], ]
-    name_standard_by_section[[i]] <- raster[ raster$Section == sections_level[i], "Student"]
+    name_standard_by_section[[i]] <- roster[ roster$Section == sections_level[i], "Student"]
     ######change the standard to names from rostar with all students, 
     ######quiz data don't have info of students who did not take PeerEvaluation
     
@@ -242,15 +233,150 @@ score_compute <- function(name_score_raw,raster,output_filename){
   
   write.csv(caculated_score_wholeClass, file = result_filename)
   write.csv(result_check_wholeClass, file = check_filename)
+  
+  list(score = caculated_score_wholeClass, check = result_check_wholeClass )
+  
+}
 
+mainFunc <- function(rawdata,roster,output_filename){
+  ognzed_data <- data_ognz(rawdata) # call data_ognz to reorganize survey data
+  roster <- roster[-1,c(1,5)]  # select name and section and delete the first row of possible points
+  roster <- roster[ roster$Student != "Test Student", ]  # delete test student
+  # correct wrong info of students
+  roster[roster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
+  roster[roster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
+  roster[roster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
+  roster[roster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
+  roster$Section <- factor(roster$Section)
+  roster$Student <- as.character(roster$Student)
+  
+  data_score_raw <- data_ognz(Survey_Data)
+  output <- score_compute(ognzed_data, roster, output_filename)
+  
 }
 
 
-###########test function
 
-name_score_raw <- data_ognz(raw_data)
-output <- score_compute(name_score_raw, raster, "Peer3D")
+############Build GUI################### 
+w = gwindow("Simple IRR GUI",width = 300 , height = 300, visible = F) # creat a window
+gg<- ggroup(container = w,spacing = 20, horizontal = F)  # wedget container
+g1 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary wedget container
+
+lbl_data_name <- glabel(
+  "Survey Raw Data, renamed as: ",
+  container = g1
+)
+addSpring(g1)
+txt_data_frame_name1 <- gedit("Survey_Data", cont = g1)
 
 
+g2 <- ggroup(container = gg,spacing = 10, horizontal = T)
+# secondary wedget container
+
+lbl_data_name2 <- glabel(
+  "Roster Data, renamed as: ",
+  container = g2
+)
+addSpring(g2)
+txt_data_frame_name2 <- gedit("Roster", cont = g2)
+status_bar <- gstatusbar("", container = w)
+
+gp1 <-ggroup(container = gg,spacing = 20, horizontal = T)
+# secondary wedget container
+
+btn_upload1 <- gbutton(   #push button to upload raw data file (only accept csv)
+  text      = "Survey Raw Data",
+  container = gp1,
+  handler   = function(h, ...)
+  {
+    gfile(
+      text    = "Upload data from peer evaluation survey",
+      type    = "open",
+      action = "read.csv",
+      handler = function(h, ...)
+      {
+        tryCatch(
+          {
+            data_frame_name <- make.names(svalue(txt_data_frame_name1))
+            the_data <- do.call(h$action, list(h$file, colClasses = "factor"))
+            assign(data_frame_name, the_data, envir = globalenv())
+            svalue(status_bar) <- "Data from Survey uploaded"
+          },
+          error = function(e) svalue(status_bar) <- "Cannot upload data"
+        )
+      },
+      
+      filter = list(
+        "Comma delimited" = list(patterns = c("*.csv","*.xls")),
+        "All files" = list(patterns = c("*"))
+      )
+    )
+  }
+)
+
+addSpring(gp1)
+
+btn_upload2 <- gbutton(   #push button to upload raw data files (only accept csv)
+  text      = "Roster Data",
+  container = gp1,
+  handler   = function(h, ...)
+  {
+    gfile(
+      text    = "Upload data from Roster",
+      type    = "open",
+      action = "read.csv",
+      handler = function(h, ...)
+      {
+        tryCatch(
+          {
+            data_frame_name <- make.names(svalue(txt_data_frame_name2))
+            the_data <- do.call(h$action, list(h$file, colClasses = "factor"))
+            assign(data_frame_name, the_data, envir = globalenv())
+            svalue(status_bar) <- "Data from Roster uploaded"
+          },
+          error = function(e) svalue(status_bar) <- "Cannot upload data"
+        )
+      },
+      
+      filter = list(
+        "Comma delimited" = list(patterns = c("*.csv","*.xls")),
+        "All files" = list(patterns = c("*"))
+      )
+    )
+  }
+)
 
 
+g3 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary wedget container
+
+lbl_data_name <- glabel(
+  "Save result as: ",
+  container = g3
+)
+addSpring(g3)
+txt_data_frame_name3 <- gedit("Peer3D", cont = g3)
+
+gp2 <-ggroup(container = gg,spacing = 10, horizontal = F)
+
+
+Calculate <- gbutton(   #push button to start calculataion
+  text      = "Compute Peer Evaluation Score",
+  container = gp2,
+  expand = T,
+  handler = function(h,...){
+    tryCatch(
+      {
+        data_frame_name <- make.names(svalue(txt_data_frame_name3))
+        output<- mainFunc(Survey_Data,Roster,data_frame_name)
+        svalue(status_bar) <- "Calculation succeeded"
+      },
+      error = function(e) svalue(status_bar) <- "Cannot calculate"
+    )
+    
+    assign("myOutput", output, envir = globalenv())
+    
+  }
+  
+)
+
+visible(w) <- T
