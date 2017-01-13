@@ -258,7 +258,7 @@ mainFunc <- function(rawdata,roster,save_dir,output_filename){
 
 
 ############Build GUI################### 
-w = gwindow("Simple IRR GUI",width = 300 , height = 300, visible = F) # creat a window
+w = gwindow("Peer Evaluation Score Output tool",width = 300 , height = 300, visible = F) # creat a window
 gg<- ggroup(container = w,spacing = 20, horizontal = F)  # widget container
 g1 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary widget container
 
