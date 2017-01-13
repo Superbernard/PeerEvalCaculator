@@ -20,7 +20,7 @@
 #
 
 
-package_needed <- c("dplyr","RecordLinkage"，"gWidgets"，"gWidgetsRGtk2")  # packages used in this script
+package_needed <- c("dplyr","RecordLinkage","gWidgets","gWidgetsRGtk2")  # packages used in this script
 pack_install_idx <- which(package_needed %in% rownames(installed.packages()) == F)
 # find the package or packages needed but not installed
 
@@ -144,7 +144,7 @@ ClosestMatch = function(string, stringVector){
 #sections_level <- levels(name_score_raw$team_section_raw)
 
 
-score_compute <- function(name_score_raw,roster,output_filename){
+score_compute <- function(name_score_raw,roster,save_dir,output_filename){
   #browser()
   # function to calculate peer score
   num_sections <- nlevels(roster$Section)   #total number of section categories
@@ -228,8 +228,8 @@ score_compute <- function(name_score_raw,roster,output_filename){
   result_check_wholeClass <- do.call(rbind, num_score_by_sec)
   colnames( result_check_wholeClass ) <- c("Name", "Number of evaluator", "Section","More than 4 evaluator")
   
-  result_filename <- paste(output_filename,"score",".csv",sep = "")
-  check_filename <- paste(output_filename,"check",".csv",sep = "")
+  result_filename <- paste(save_dir,"//", output_filename,"score",".csv",sep = "")
+  check_filename <- paste(save_dir,"//",output_filename,"check",".csv",sep = "")
   
   write.csv(caculated_score_wholeClass, file = result_filename)
   write.csv(result_check_wholeClass, file = check_filename)
@@ -238,7 +238,7 @@ score_compute <- function(name_score_raw,roster,output_filename){
   
 }
 
-mainFunc <- function(rawdata,roster,output_filename){
+mainFunc <- function(rawdata,roster,save_dir,output_filename){
   ognzed_data <- data_ognz(rawdata) # call data_ognz to reorganize survey data
   roster <- roster[-1,c(1,5)]  # select name and section and delete the first row of possible points
   roster <- roster[ roster$Student != "Test Student", ]  # delete test student
@@ -251,7 +251,7 @@ mainFunc <- function(rawdata,roster,output_filename){
   roster$Student <- as.character(roster$Student)
   
   data_score_raw <- data_ognz(Survey_Data)
-  output <- score_compute(ognzed_data, roster, output_filename)
+  output <- score_compute(ognzed_data, roster, save_dir,output_filename)
   
 }
 
@@ -259,8 +259,8 @@ mainFunc <- function(rawdata,roster,output_filename){
 
 ############Build GUI################### 
 w = gwindow("Simple IRR GUI",width = 300 , height = 300, visible = F) # creat a window
-gg<- ggroup(container = w,spacing = 20, horizontal = F)  # wedget container
-g1 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary wedget container
+gg<- ggroup(container = w,spacing = 20, horizontal = F)  # widget container
+g1 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary widget container
 
 lbl_data_name <- glabel(
   "Survey Raw Data, renamed as: ",
@@ -271,7 +271,7 @@ txt_data_frame_name1 <- gedit("Survey_Data", cont = g1)
 
 
 g2 <- ggroup(container = gg,spacing = 10, horizontal = T)
-# secondary wedget container
+# secondary widget container
 
 lbl_data_name2 <- glabel(
   "Roster Data, renamed as: ",
@@ -282,7 +282,7 @@ txt_data_frame_name2 <- gedit("Roster", cont = g2)
 status_bar <- gstatusbar("", container = w)
 
 gp1 <-ggroup(container = gg,spacing = 20, horizontal = T)
-# secondary wedget container
+# secondary widget container
 
 btn_upload1 <- gbutton(   #push button to upload raw data file (only accept csv)
   text      = "Survey Raw Data",
@@ -347,14 +347,22 @@ btn_upload2 <- gbutton(   #push button to upload raw data files (only accept csv
 )
 
 
-g3 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary wedget container
+g3 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary widget container
 
 lbl_data_name <- glabel(
-  "Save result as: ",
+  "Name result as: ",
   container = g3
 )
 addSpring(g3)
-txt_data_frame_name3 <- gedit("Peer3D", cont = g3)
+txt_data_frame_name3 <- gedit("Peer3D", cont = g3, anchor = c ( 5 ,0))
+
+
+## label and file selection widget
+group <- ggroup ( container = gg , horizontal = FALSE )
+save_dir <- gfilebrowse ( text = "Select a directory to save ..." ,
+                           quote = FALSE ,type = "selectdir" , cont = group )
+
+
 
 gp2 <-ggroup(container = gg,spacing = 10, horizontal = F)
 
@@ -367,7 +375,7 @@ Calculate <- gbutton(   #push button to start calculataion
     tryCatch(
       {
         data_frame_name <- make.names(svalue(txt_data_frame_name3))
-        output<- mainFunc(Survey_Data,Roster,data_frame_name)
+        output<- mainFunc(Survey_Data,Roster,svalue(save_dir),data_frame_name)
         svalue(status_bar) <- "Calculation succeeded"
       },
       error = function(e) svalue(status_bar) <- "Cannot calculate"
@@ -380,3 +388,4 @@ Calculate <- gbutton(   #push button to start calculataion
 )
 
 visible(w) <- T
+
