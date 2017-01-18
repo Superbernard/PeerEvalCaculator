@@ -11,8 +11,8 @@
 #.	Raw data of survey can be downloaded from Canvas. It is a CSV file that contains information
 #   of surveys of all students that participate the evaluation. 
 #
-#.	The name input from students are not exactly accurate. Some are missing family name, some have
-#   misspelling and some provide nicky name etc. Text match methed need to be used to match those
+#.	The name input from students are not exactly accurate. Some are missing family names, some have
+#   misspelling and some provide nicky names etc. Text match methed need to be used to match those
 #   input names to true names on the class roster. Levenshtein distance is used to find the best match.
 #
 #.	The peer score is calculated by averaging scores got from every team member who participates the
@@ -222,17 +222,17 @@ score_compute <- function(name_score_raw,roster,save_dir,output_filename){
     #if ( length(outlier_idx) >0 ) outlier_by_section[[i]] <- output_data_by_section[[i]][outlier_idx, ]
   }
   
-  caculated_score_wholeClass <- do.call(rbind, output_data_by_section)
-  colnames( caculated_score_wholeClass ) <- c("Name", "Section", "PeerScore")
+  caculated_score_wholeClass <- do.call(rbind, output_data_by_section)    #assemble result tables from all sections into one big table. 
+  colnames( caculated_score_wholeClass ) <- c("Name", "Section", "PeerScore")    #respecify column names
   
-  result_check_wholeClass <- do.call(rbind, num_score_by_sec)
-  colnames( result_check_wholeClass ) <- c("Name", "Number of evaluator", "Section","More than 4 evaluator")
+  result_check_wholeClass <- do.call(rbind, num_score_by_sec)     #assemble error tables from all sections into one big table.
+  colnames( result_check_wholeClass ) <- c("Name", "Number of evaluator", "Section","More than 4 evaluator")    #respecify column names
   
-  result_filename <- paste(save_dir,"//", output_filename,"score",".csv",sep = "")
-  check_filename <- paste(save_dir,"//",output_filename,"check",".csv",sep = "")
+  result_filename <- paste(save_dir,"//", output_filename,"score",".csv",sep = "")    #name for the result table
+  check_filename <- paste(save_dir,"//",output_filename,"check",".csv",sep = "")     #name for the error table
   
-  write.csv(caculated_score_wholeClass, file = result_filename)
-  write.csv(result_check_wholeClass, file = check_filename)
+  write.csv(caculated_score_wholeClass, file = result_filename)    #save and output result table
+  write.csv(result_check_wholeClass, file = check_filename)     #save and output error table
   
   list(score = caculated_score_wholeClass, check = result_check_wholeClass )
   
@@ -250,8 +250,8 @@ mainFunc <- function(rawdata,roster,save_dir,output_filename){
   roster$Section <- factor(roster$Section)
   roster$Student <- as.character(roster$Student)
   
-  data_score_raw <- data_ognz(Survey_Data)
-  output <- score_compute(ognzed_data, roster, save_dir,output_filename)
+  data_score_raw <- data_ognz(Survey_Data)    #reorganize data
+  output <- score_compute(ognzed_data, roster, save_dir,output_filename)      #compute and output peer score
   
 }
 
@@ -262,12 +262,12 @@ w = gwindow("Peer Evaluation Score Output tool",width = 300 , height = 300, visi
 gg<- ggroup(container = w,spacing = 20, horizontal = F)  # widget container
 g1 <- ggroup(container = gg,spacing = 10, horizontal = T) # secondary widget container
 
-lbl_data_name <- glabel(
+lbl_data_name <- glabel(    
   "Survey Raw Data, renamed as: ",
   container = g1
-)
+)    #add label
 addSpring(g1)
-txt_data_frame_name1 <- gedit("Survey_Data", cont = g1)
+txt_data_frame_name1 <- gedit("Survey_Data", cont = g1)    #add text editor
 
 
 g2 <- ggroup(container = gg,spacing = 10, horizontal = T)
@@ -276,10 +276,10 @@ g2 <- ggroup(container = gg,spacing = 10, horizontal = T)
 lbl_data_name2 <- glabel(
   "Roster Data, renamed as: ",
   container = g2
-)
+)    #add label
 addSpring(g2)
-txt_data_frame_name2 <- gedit("Roster", cont = g2)
-status_bar <- gstatusbar("", container = w)
+txt_data_frame_name2 <- gedit("Roster", cont = g2)     #add text editor
+status_bar <- gstatusbar("", container = w)    #add status bar
 
 gp1 <-ggroup(container = gg,spacing = 20, horizontal = T)
 # secondary widget container
@@ -360,14 +360,14 @@ txt_data_frame_name3 <- gedit("Peer3D", cont = g3, anchor = c ( 5 ,0))
 ## label and file selection widget
 group <- ggroup ( container = gg , horizontal = FALSE )
 save_dir <- gfilebrowse ( text = "Select a directory to save ..." ,
-                           quote = FALSE ,type = "selectdir" , cont = group )
+                           quote = FALSE ,type = "selectdir" , cont = group )   #add file browser for saving results
 
 
 
 gp2 <-ggroup(container = gg,spacing = 10, horizontal = F)
 
 
-Calculate <- gbutton(   #push button to start calculataion
+Calculate <- gbutton(   #push button to start calculataion and export results
   text      = "Compute Peer Evaluation Score",
   container = gp2,
   expand = T,
@@ -387,5 +387,5 @@ Calculate <- gbutton(   #push button to start calculataion
   
 )
 
-visible(w) <- T
+visible(w) <- T     #display the GUI
 
