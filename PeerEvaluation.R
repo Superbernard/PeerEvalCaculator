@@ -12,7 +12,7 @@
 #   of surveys of all students that participate the evaluation. 
 #
 #.	The name input from students are not exactly accurate. Some are missing family names, some have
-#   misspelling and some provide nicky names etc. Text match methed need to be used to match those
+#   misspelling and some provide nicknames etc. Text match methed need to be used to match those
 #   input names to true names on the class roster. Levenshtein distance is used to find the best match.
 #
 #.	The peer score is calculated by averaging scores got from every team member who participates the
