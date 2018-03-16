@@ -116,18 +116,6 @@ data_ognz <- function(rawdata){
 }
 
 
-# roster <- read.csv( "roster.csv", header = T, sep = ",")
-# #import roster data as a standard of names
-# roster <- roster[-1,c(1,5)]  # select name and section and delete the first row of possible points
-# roster <- roster[ roster$Student != "Test Student", ]  # delete test student
-# 
-# # correct wrong info of students
-# roster[roster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
-# roster[roster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
-# roster[roster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
-# roster[roster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
-# roster$Section <- factor(roster$Section)
-# roster$Student <- as.character(roster$Student)
 
 
 ClosestMatch = function(string, stringVector){  
@@ -243,11 +231,6 @@ mainFunc <- function(rawdata,roster,save_dir,output_filename,Allsec = T){
   
   roster <- roster[-1,c(1,5)]  # select name and section and delete the first row of possible points
   roster <- roster[ roster$Student != "Test Student", ]  # delete test student
-  # correct wrong info of students
-  # roster[roster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
-  # roster[roster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
-  # roster[roster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
-  # roster[roster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
   
   # roster$Section <- as.character(roster$Section)
   roster[roster$Section == "Biol-1121-002", "Section"] <- "BIOL-1121-002"
