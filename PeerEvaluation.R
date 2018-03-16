@@ -1,4 +1,4 @@
-## Peer Evaluation Output Tool ( in progress )
+## Peer Evaluation Output Tool
 #
 # The aim of this piese of script is to build a GUI application that can take raw data 
 # from Peer Evaluation survey of students in BIOL1121, and output the score of the evaluation
