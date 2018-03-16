@@ -35,9 +35,6 @@ library(gWidgets)
 library(gWidgetsRGtk2)
 options ( guiToolkit="RGtk2" )
 
-# raw_data <- read.csv(
-#   "Peer Evaluation 3 - Inv D Survey Student Analysis Report.csv",
-#   header = T, sep = ",", na.strings = c("","NA","N/A","na","Na"))  #import quize file
 
 data_ognz <- function(rawdata){
   # function of data reorganization
@@ -86,7 +83,7 @@ data_ognz <- function(rawdata){
   
   name_input_total <- as.character(name_score_raw$team_name_raw)  
   # character input of name input
-  # name_string_len <- as.numeric(lapply(name_input_total, nchar ))  #length of name charater
+
   name_string_com <- lapply(name_input_total, grepl,pattern = " ")
   # check if name input is complete ( contains both Last and First names ) by checking space
   idx_incom_name <- which(name_string_com == T) #idx of complete name input
@@ -94,6 +91,7 @@ data_ognz <- function(rawdata){
   
   pattern_to_check <- c("&", " and ", "," ,"Do not", "Cannot", "Can not", "can't","Don't","no ")
   pattern_reco <- c()
+  
   for ( i in 1:length(pattern_to_check) ){
     
     #loop that removes observations with inappropriate patterns 
@@ -115,19 +113,6 @@ data_ognz <- function(rawdata){
   return(name_score_raw)
 }
 
-
-# roster <- read.csv( "roster.csv", header = T, sep = ",")
-# #import roster data as a standard of names
-# roster <- roster[-1,c(1,5)]  # select name and section and delete the first row of possible points
-# roster <- roster[ roster$Student != "Test Student", ]  # delete test student
-# 
-# # correct wrong info of students
-# roster[roster$Student == "Micaiah Bradford", "Section"] <- "BIOL-1121-002"
-# roster[roster$Student == "Cheyenne Roche", "Section"] <- "BIOL-1121-905"
-# roster[roster$Student == "Tylar Williams", "Section"] <- "BIOL-1121-011"
-# roster[roster$Student == "Alexandra Sabados", "Section"] <- "BIOL-1121-904"
-# roster$Section <- factor(roster$Section)
-# roster$Student <- as.character(roster$Student)
 
 
 ClosestMatch = function(string, stringVector){  
@@ -384,7 +369,6 @@ Calculate <- gbutton(   #push button to start calculataion and export results
     assign("myOutput", output, envir = globalenv())
     
   }
-  
 )
 
 visible(w) <- T     #display the GUI
