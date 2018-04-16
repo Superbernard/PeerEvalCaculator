@@ -63,16 +63,21 @@ data_ognz <- function(rawdata){
   
   team_name_raw <- as.character(c(whole_data$`Teamate 1`,whole_data$`Teamate 2`,
                                   whole_data$`Teamate 3`))
+  
   #All names of evaluated students from quiz
   team_score_raw <- as.numeric(c(whole_data$`Score 1`, whole_data$`Score 2`, 
                                  whole_data$`Score 3`))
+  
   #All scores assigned to evaluated students from quiz (numeric)
   team_section_raw <- as.factor(rep(whole_data$section,3))
+  
   #All section info of evaluated students from quiz
   name_score_raw <- data.frame(Name_evaluator_rep, team_name_raw, team_score_raw, 
                                team_section_raw)
+  
   #combine names with scores and sections
   name_score_raw <- name_score_raw[ name_score_raw$team_name_raw != "", ]
+  
   #remove rows with empty teamate names
   idx_na_score <- which(is.na(name_score_raw$team_score_raw)) #index of NAs in score
   
@@ -86,6 +91,7 @@ data_ognz <- function(rawdata){
   
   name_input_total <- as.character(name_score_raw$team_name_raw)  
   # character input of name input
+  
   # name_string_len <- as.numeric(lapply(name_input_total, nchar ))  #length of name charater
   name_string_com <- lapply(name_input_total, grepl,pattern = " ")
   # check if name input is complete ( contains both Last and First names ) by checking space
@@ -94,8 +100,8 @@ data_ognz <- function(rawdata){
   
   pattern_to_check <- c("&", " and ", "," ,"Do not", "Cannot", "Can not", "can't","Don't","no ")
   pattern_reco <- c()
+  
   for ( i in 1:length(pattern_to_check) ){
-    
     #loop that removes observations with inappropriate patterns 
     pattern_check <- lapply( as.character(name_score_raw$team_name_raw), grepl, 
                              pattern = pattern_to_check[i], ignore.case = TRUE)
